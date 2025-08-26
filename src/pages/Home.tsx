@@ -4,7 +4,7 @@ const Home: React.FC = () => {
   return (
     <div>
       <h1>Welcome to My Portfolio</h1>
-      <p>This is my React + TypeScript + Vite portfolio site.</p>
+      <p>This is my Portfolio website.</p>
     </div>
   );
 };
