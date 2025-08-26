@@ -1,67 +1,62 @@
-import { useEffect, useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
-type Props = { progress: number };
+export default function Header() {
+  const ref = useRef(null);
+  const { scrollY } = useScroll();
 
-function HeaderContent({ progress }: Props) {
-  // Interpolations
-  const headerHeight = 150 - 70 * progress; // 150px → 80px
-  const scale = 1 - 0.4 * progress;         // 1 → 0.6
-  const xOffset = 0 + 60 * progress;        // slide text right
-  const yOffset = 0 - 40 * progress;        // slide text up
+  // Map scrollY (0–300px) → progress (0–1)
+  const inputRange = [0, 300];
+
+  // Header height shrinks 400px → 100px
+  const headerHeight = useTransform(scrollY, inputRange, [400, 100]);
+
+  // Image shrinks 300px → 60px
+  const imageSize = useTransform(scrollY, inputRange, [300, 60]);
+
+  // Text moves from below image → beside it
+  const textY = useTransform(scrollY, inputRange, [40, 0]);  // 40px below → aligned
+  const textX = useTransform(scrollY, inputRange, [0, 20]);  // slides to the right
+
+  // Whole block slides into top-left
+  const containerX = useTransform(scrollY, inputRange, [0, -120]);
+  const containerY = useTransform(scrollY, inputRange, [0, -120]);
 
   return (
-    <header
-      style={{
-        height: headerHeight,
-        transition: "height 0.1s linear",
-      }}
-      className="fixed top-0 left-0 w-full bg-white shadow-md flex flex-col items-center justify-center overflow-hidden"
+    <motion.header
+      ref={ref}
+      style={{ height: headerHeight }}
+      className="fixed top-0 left-0 w-full bg-white shadow-md flex items-center justify-center overflow-hidden"
     >
-      <div
-        className="flex items-center"
+      <motion.div
         style={{
-          transform: `scale(${scale})`,
-          transformOrigin: "top left",
-          transition: "transform 0.1s linear",
+          x: containerX,
+          y: containerY,
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column", // start vertical
         }}
+        className="origin-top-left"
       >
-        <img
-          src="/headshot.png"
+        <motion.img
+          src="../assets/me.png"
           alt="Headshot"
           className="rounded-full"
           style={{
-            width: `${80 - 30 * progress}px`, // 80px → 50px
-            height: `${80 - 30 * progress}px`,
+            width: imageSize,
+            height: imageSize,
           }}
         />
-        <span
+        <motion.span
+          className="font-bold text-3xl"
           style={{
-            transform: `translate(${xOffset}px, ${yOffset}px)`,
-            marginLeft: progress > 0.3 ? "12px" : "0px", // starts below, moves beside
-            transition: "margin-left 0.1s linear",
+            x: textX,
+            y: textY,
           }}
-          className="font-bold text-xl"
         >
-          Your Name
-        </span>
-      </div>
-    </header>
+          Sam Whorton
+        </motion.span>
+      </motion.div>
+    </motion.header>
   );
-}
-
-export default function Header() {
-  const [progress, setProgress] = useState(0); // 0 = top, 1 = fully shrunk
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const maxScroll = 200; // pixels over which animation happens
-      const y = Math.min(window.scrollY, maxScroll);
-      setProgress(y / maxScroll); // clamp between 0 and 1
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  return <HeaderContent progress={progress} />;
 }
