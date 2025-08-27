@@ -40,7 +40,6 @@ export default function Header() {
       >
         <motion.img
           src="../assets/me.png"
-          alt="Headshot"
           className="rounded-full"
           style={{
             width: imageSize,
@@ -53,9 +52,7 @@ export default function Header() {
             x: textX,
             y: textY,
           }}
-        >
-          Sam Whorton
-        </motion.span>
+        >SammyWho</motion.span>
       </motion.div>
     </motion.header>
   );
